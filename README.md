@@ -103,6 +103,21 @@ cd frontend && bun install && cd ..
 make hooks-install
 ```
 
+### Enable AI Enhancements (Optional)
+
+For AI-powered features like agent name generation and task summaries, create a `.env` file in the `backend/` folder with your Claude Code OAuth token:
+
+```bash
+# Set up a long-lived authentication token (requires Claude subscription)
+# This will prompt you to authenticate and display your token
+claude setup-token
+
+# Create the .env file with the token
+echo "CLAUDE_CODE_OAUTH_TOKEN=your-token-here" > backend/.env
+```
+
+Without this token, the visualizer works fully but displays raw agent IDs instead of friendly generated names, and tool names instead of summarized tasks. The frontend displays AI status in the top right corner so you can verify if it's properly configured.
+
 ## Development
 
 ### Starting the Development Servers
