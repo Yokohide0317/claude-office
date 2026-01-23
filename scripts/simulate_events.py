@@ -8,6 +8,7 @@ This script simulates Claude Code events to exercise frontend elements:
 - Todo whiteboard
 - Tool use bubbles
 - Agent lifecycle (arrival, work, departure)
+- Background task notifications (remote workers display)
 """
 
 import random
@@ -583,6 +584,42 @@ def simulate() -> None:
     # Brief pause before completion
     print("Waiting briefly before completion...")
     time.sleep(5)
+
+    # Simulate background task notifications (as if background agents completed)
+    print("Simulating background task notifications...")
+    background_tasks = [
+        {
+            "task_id": "bg_task_a1b2c3d4",
+            "status": "completed",
+            "summary": "Linting codebase with ruff",
+        },
+        {
+            "task_id": "bg_task_e5f6g7h8",
+            "status": "completed",
+            "summary": "Running type checks with pyright",
+        },
+        {
+            "task_id": "bg_task_i9j0k1l2",
+            "status": "failed",
+            "summary": "Deploy to production failed",
+        },
+        {
+            "task_id": "bg_task_m3n4o5p6",
+            "status": "completed",
+            "summary": "Generated API documentation",
+        },
+    ]
+    for task in background_tasks:
+        send_event(
+            "background_task_notification",
+            {
+                "background_task_id": task["task_id"],
+                "background_task_status": task["status"],
+                "background_task_summary": task["summary"],
+                "background_task_output_file": f"/tmp/{task['task_id']}.output",
+            },
+        )
+        time.sleep(1.5)
 
     # Final todo update - all complete
     send_event(
