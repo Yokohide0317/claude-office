@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.websocket import manager
 from app.core.event_processor import event_processor
 from app.db.database import get_db
-from app.db.models import EventRecord, SessionRecord, TaskRecord
+from app.db.models import EventRecord, SessionRecord, TaskRecord, UserPreference
 from app.services.git_service import git_service
 
 logger = logging.getLogger(__name__)
@@ -206,6 +206,7 @@ async def clear_database(db: Annotated[AsyncSession, Depends(get_db)]) -> dict[s
     try:
         simulation_killed = kill_simulation()
 
+        await db.execute(delete(UserPreference))
         await db.execute(delete(TaskRecord))
         await db.execute(delete(EventRecord))
         await db.execute(delete(SessionRecord))

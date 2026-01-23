@@ -2,22 +2,31 @@
 
 import { Graphics } from "pixi.js";
 import { useState, useCallback, useEffect, type ReactNode } from "react";
+import { usePreferencesStore } from "@/stores/preferencesStore";
+import { DigitalClock } from "./DigitalClock";
 
 /**
- * WallClock - Animated analog clock for the office wall
+ * WallClock - Animated clock for the office wall
  *
- * Displays current time with hour, minute, and second hands.
- * Updates every second.
+ * Displays current time in analog or digital format based on user preferences.
+ * Click to cycle through: analog → digital 12h → digital 24h → analog
  */
 export function WallClock(): ReactNode {
   const [time, setTime] = useState(new Date());
+  const clockType = usePreferencesStore((s) => s.clockType);
+  const clockFormat = usePreferencesStore((s) => s.clockFormat);
+  const cycleClockMode = usePreferencesStore((s) => s.cycleClockMode);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const drawClock = useCallback(
+  const handleClick = useCallback(() => {
+    cycleClockMode();
+  }, [cycleClockMode]);
+
+  const drawAnalogClock = useCallback(
     (g: Graphics) => {
       g.clear();
       // Outer black ring
@@ -61,5 +70,26 @@ export function WallClock(): ReactNode {
     [time],
   );
 
-  return <pixiGraphics draw={drawClock} />;
+  // Draw a clickable hit area
+  const drawHitArea = useCallback((g: Graphics) => {
+    g.clear();
+    g.circle(0, 0, 44);
+    g.fill({ color: 0x000000, alpha: 0 }); // Invisible but clickable
+  }, []);
+
+  return (
+    <pixiContainer
+      eventMode="static"
+      cursor="pointer"
+      onPointerDown={handleClick}
+    >
+      {clockType === "analog" ? (
+        <pixiGraphics draw={drawAnalogClock} />
+      ) : (
+        <DigitalClock format={clockFormat} />
+      )}
+      {/* Invisible hit area to ensure clicks register */}
+      <pixiGraphics draw={drawHitArea} />
+    </pixiContainer>
+  );
 }

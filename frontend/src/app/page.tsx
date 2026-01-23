@@ -32,6 +32,7 @@ import {
   Menu,
   X,
   Users,
+  Settings,
 } from "lucide-react";
 import { GitStatusPanel } from "@/components/game/GitStatusPanel";
 import { EventLog } from "@/components/game/EventLog";
@@ -39,6 +40,8 @@ import { AgentStatus } from "@/components/game/AgentStatus";
 import { agentMachineService } from "@/machines/agentMachineService";
 import { formatDistanceToNow } from "date-fns";
 import Modal from "@/components/overlay/Modal";
+import SettingsModal from "@/components/overlay/SettingsModal";
+import { usePreferencesStore } from "@/stores/preferencesStore";
 
 const OfficeGame = dynamic(
   () =>
@@ -71,6 +74,7 @@ export default function V2TestPage(): React.ReactNode {
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [sessionPendingDelete, setSessionPendingDelete] =
     useState<Session | null>(null);
   const [statusMessage, setStatusMessage] = useState<{
@@ -103,6 +107,7 @@ export default function V2TestPage(): React.ReactNode {
   const loadPersistedDebugSettings = useGameStore(
     (state) => state.loadPersistedDebugSettings,
   );
+  const loadPreferences = usePreferencesStore((s) => s.loadPreferences);
 
   // Detect mobile breakpoint (< 768px)
   useEffect(() => {
@@ -116,6 +121,11 @@ export default function V2TestPage(): React.ReactNode {
   useEffect(() => {
     loadPersistedDebugSettings();
   }, [loadPersistedDebugSettings]);
+
+  // Load user preferences from backend on mount
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
 
   const showStatus = useCallback(
     (text: string, type: "info" | "error" | "success" = "info") => {
@@ -380,6 +390,12 @@ export default function V2TestPage(): React.ReactNode {
         </div>
       </Modal>
 
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
+
       {/* Delete Session Confirmation Modal */}
       <Modal
         isOpen={sessionPendingDelete !== null}
@@ -502,6 +518,14 @@ export default function V2TestPage(): React.ReactNode {
             >
               <Bug size={14} />
               DEBUG {debugMode ? "ON" : "OFF"}
+            </button>
+
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded text-xs font-bold transition-colors"
+            >
+              <Settings size={14} />
+              SETTINGS
             </button>
 
             <button

@@ -68,3 +68,21 @@ class TaskRecord(Base):
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
     )
+
+
+class UserPreference(Base):
+    """Database model for user preferences.
+
+    Stores key-value pairs for user preferences. Uses a flexible design
+    to support adding new preferences without schema changes.
+    """
+
+    __tablename__ = "user_preferences"
+
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    value: Mapped[str] = mapped_column(String)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
