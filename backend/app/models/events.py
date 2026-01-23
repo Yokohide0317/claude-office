@@ -29,6 +29,7 @@ class EventType(StrEnum):
     WAITING = "waiting"
     LEAVING = "leaving"
     ERROR = "error"
+    BACKGROUND_TASK_NOTIFICATION = "background_task_notification"
 
 
 class EventData(BaseModel):
@@ -62,6 +63,11 @@ class EventData(BaseModel):
     output_tokens: int | None = None
     cache_read_tokens: int | None = None
     cache_creation_tokens: int | None = None
+    # Background task notification fields
+    background_task_id: str | None = None
+    background_task_output_file: str | None = None
+    background_task_status: str | None = None  # "completed" | "failed"
+    background_task_summary: str | None = None
 
 
 class Event(BaseModel):

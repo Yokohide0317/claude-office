@@ -39,6 +39,18 @@ class FileEdit(BaseModel):
     edit_count: int
 
 
+class BackgroundTask(BaseModel):
+    """Background task tracking for remote workers display."""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    task_id: str
+    status: str  # "completed" | "failed" | "running"
+    summary: str | None = None
+    started_at: str | None = None
+    completed_at: str | None = None
+
+
 class WhiteboardData(BaseModel):
     """Data for whiteboard display modes."""
 
@@ -60,6 +72,9 @@ class WhiteboardData(BaseModel):
     news_items: list[NewsItem] = Field(default_factory=lambda: cast(list[NewsItem], []))
     coffee_cups: int = 0
     file_edits: dict[str, int] = Field(default_factory=dict)
+    background_tasks: list[BackgroundTask] = Field(
+        default_factory=lambda: cast(list[BackgroundTask], [])
+    )
 
 
 class Session(BaseModel):

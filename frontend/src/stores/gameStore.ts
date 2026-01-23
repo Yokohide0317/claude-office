@@ -258,7 +258,7 @@ interface GameStore {
 const BOSS_POSITION: Position = { x: 640, y: 900 }; // Desk center at y=960 (30*32)
 const MAX_EVENT_LOG = 500;
 const DEBUG_SETTINGS_KEY = "claude-office-debug-settings";
-const WHITEBOARD_MODE_COUNT = 10; // 0-9 modes
+const WHITEBOARD_MODE_COUNT = 11; // 0-10 modes
 
 // Initial whiteboard data
 const initialWhiteboardData: WhiteboardData = {
@@ -276,6 +276,7 @@ const initialWhiteboardData: WhiteboardData = {
   newsItems: [],
   coffeeCups: 0,
   fileEdits: {},
+  backgroundTasks: [],
 };
 
 // Helper to load debug settings from localStorage
@@ -1102,6 +1103,8 @@ export const useGameStore = create<GameStore>()(
               newsItems: backendState.whiteboardData.newsItems ?? [],
               coffeeCups: backendState.whiteboardData.coffeeCups ?? 0,
               fileEdits: backendState.whiteboardData.fileEdits ?? {},
+              backgroundTasks:
+                backendState.whiteboardData.backgroundTasks ?? [],
             }
           : state.whiteboardData;
 

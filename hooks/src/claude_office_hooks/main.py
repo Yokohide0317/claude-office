@@ -49,7 +49,9 @@ try:
     import datetime
     import json
     import os
+    import re
     import urllib.request
+    import xml.etree.ElementTree as ET
     from typing import Any, cast
 
     # Configuration
@@ -334,13 +336,44 @@ try:
                 return None  # Skip if no agent_id provided
 
         elif event_type == "user_prompt_submit":
-            # User submitted a new prompt - boss receives instructions
+            # Check if this is a background task notification
             prompt = raw_data.get("prompt", "")
-            # Truncate long prompts for display
-            if len(prompt) > 50:
-                prompt = prompt[:47] + "..."
-            data["prompt"] = prompt
-            data["summary"] = f"User: {prompt}" if prompt else "User submitted prompt"
+
+            # Look for <task-notification> XML in the prompt
+            task_notification_pattern = r"<task-notification>(.*?)</task-notification>"
+            match = re.search(task_notification_pattern, prompt, re.DOTALL)
+
+            if match:
+                # Parse the task notification XML
+                try:
+                    xml_content = match.group(0)
+                    root = ET.fromstring(xml_content)
+
+                    task_id = root.findtext("task-id", "")
+                    output_file = root.findtext("output-file", "")
+                    status = root.findtext("status", "completed")
+                    summary_text = root.findtext("summary", "")
+
+                    # Route as background_task_notification instead
+                    payload["event_type"] = "background_task_notification"
+                    data["background_task_id"] = task_id
+                    data["background_task_output_file"] = output_file
+                    data["background_task_status"] = status
+                    data["background_task_summary"] = summary_text
+                    data["summary"] = f"Background task {task_id[:8]}... {status}"
+                except ET.ParseError:
+                    # Failed to parse XML, treat as regular prompt
+                    if len(prompt) > 50:
+                        prompt = prompt[:47] + "..."
+                    data["prompt"] = prompt
+                    data["summary"] = f"User: {prompt}" if prompt else "User submitted prompt"
+            else:
+                # Regular user prompt - boss receives instructions
+                # Truncate long prompts for display
+                if len(prompt) > 50:
+                    prompt = prompt[:47] + "..."
+                data["prompt"] = prompt
+                data["summary"] = f"User: {prompt}" if prompt else "User submitted prompt"
 
         elif event_type == "permission_request":
             # Claude needs permission for a tool - show waiting state

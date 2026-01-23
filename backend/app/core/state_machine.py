@@ -23,6 +23,7 @@ from app.models.common import BubbleContent, BubbleType, TodoItem, TodoStatus
 from app.models.events import Event, EventData, EventType
 from app.models.sessions import (
     AgentLifespan,
+    BackgroundTask,
     GameState,
     HistoryEntry,
     NewsItem,
@@ -62,6 +63,10 @@ def _empty_news_items() -> list[NewsItem]:
 
 def _empty_file_edits() -> dict[str, int]:
     return cast(dict[str, int], {})
+
+
+def _empty_background_tasks() -> list[BackgroundTask]:
+    return cast(list[BackgroundTask], [])
 
 
 class OfficePhase(Enum):
@@ -111,6 +116,7 @@ class StateMachine:
     news_items: list[NewsItem] = field(default_factory=_empty_news_items)
     coffee_cups: int = 0
     file_edits: dict[str, int] = field(default_factory=_empty_file_edits)
+    background_tasks: list[BackgroundTask] = field(default_factory=_empty_background_tasks)
 
     def to_game_state(self, session_id: str) -> GameState:
         """Convert current state to a GameState for frontend consumption."""
@@ -153,6 +159,7 @@ class StateMachine:
             news_items=self.news_items.copy(),
             coffee_cups=self.coffee_cups,
             file_edits=self.file_edits.copy(),
+            background_tasks=self.background_tasks.copy(),
         )
 
         return GameState(
@@ -422,6 +429,7 @@ class StateMachine:
             self.news_items = []
             self.coffee_cups = 0
             self.file_edits = {}
+            self.background_tasks = []
             self._add_news_item("session", "📋 New session started - ready for work!")
 
         elif event.event_type == EventType.CONTEXT_COMPACTION:
@@ -611,6 +619,44 @@ class StateMachine:
             self.phase = OfficePhase.ENDED
             self.boss_state = BossState.IDLE
             self.boss_current_task = None
+
+        elif event.event_type == EventType.BACKGROUND_TASK_NOTIFICATION:
+            if event.data:
+                task_id = event.data.background_task_id or "unknown"
+                status = event.data.background_task_status or "completed"
+                summary = event.data.background_task_summary
+
+                # Create or update background task entry
+                existing_task = None
+                for task in self.background_tasks:
+                    if task.task_id == task_id:
+                        existing_task = task
+                        break
+
+                if existing_task:
+                    existing_task.status = status
+                    existing_task.summary = summary
+                    existing_task.completed_at = datetime.now().isoformat()
+                else:
+                    new_task = BackgroundTask(
+                        task_id=task_id,
+                        status=status,
+                        summary=summary,
+                        started_at=datetime.now().isoformat(),
+                        completed_at=datetime.now().isoformat() if status != "running" else None,
+                    )
+                    self.background_tasks.insert(0, new_task)
+
+                # Keep only last 10 tasks
+                if len(self.background_tasks) > 10:
+                    self.background_tasks = self.background_tasks[:10]
+
+                # Add news item with status emoji
+                status_emoji = "✅" if status == "completed" else "❌"
+                task_id_short = task_id[:8] if len(task_id) > 8 else task_id
+                summary_short = (summary[:30] + "...") if summary and len(summary) > 30 else summary
+                headline = f"{status_emoji} Task {task_id_short}: {summary_short or status}"
+                self._add_news_item("agent", headline)
 
     def _tool_to_thought(self, event: Event) -> BubbleContent:
         """Convert a tool use event to thought bubble content."""

@@ -219,7 +219,9 @@ export function useWebSocketEvents({
             `[WS] Boss bubble NEW text, alreadyHas=${alreadyHas}, compactionPhase=${store.compactionPhase}`,
           );
           if (!alreadyHas) {
-            console.log(`[WS] Enqueueing boss bubble: "${bubbleText?.slice(0, 30)}..."`);
+            console.log(
+              `[WS] Enqueueing boss bubble: "${bubbleText?.slice(0, 30)}..."`,
+            );
             enqueueBubble("boss", state.boss.bubble);
           }
         } else {

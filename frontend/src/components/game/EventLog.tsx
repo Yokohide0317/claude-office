@@ -32,6 +32,8 @@ function getEventTypeColor(type: string) {
       return "text-rose-400";
     case "error":
       return "text-red-500";
+    case "background_task_notification":
+      return "text-teal-400";
     default:
       return "text-slate-400";
   }

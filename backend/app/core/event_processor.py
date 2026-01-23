@@ -600,6 +600,13 @@ class EventProcessor:
                 return f"Agent {data.agent_id or 'unknown'} leaving"
             case EventType.ERROR:
                 return f"Error: {data.message or 'unknown error'}"
+            case EventType.BACKGROUND_TASK_NOTIFICATION:
+                task_id = data.background_task_id or "unknown"
+                status = data.background_task_status or "completed"
+                summary = data.background_task_summary or ""
+                task_id_short = task_id[:7] if len(task_id) > 7 else task_id
+                summary_short = (summary[:40] + "...") if len(summary) > 40 else summary
+                return f"Background task {task_id_short} {status}: {summary_short}"
             case _:
                 return f"Event: {event.event_type}"
 

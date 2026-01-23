@@ -10,7 +10,8 @@ export type EventType =
   | "subagent_start"
   | "subagent_stop"
   | "context_compaction"
-  | "error";
+  | "error"
+  | "background_task_notification";
 
 export type BubbleType = "thought" | "speech";
 
@@ -108,6 +109,15 @@ export interface NewsItem {
   timestamp: string;
 }
 
+/** Background task tracking (Mode 10) */
+export interface BackgroundTask {
+  taskId: string;
+  status: "completed" | "failed" | "running";
+  summary?: string;
+  startedAt?: string;
+  completedAt?: string;
+}
+
 /** Whiteboard display mode */
 export type WhiteboardMode =
   | 0 // Todo List (existing)
@@ -119,7 +129,8 @@ export type WhiteboardMode =
   | 6 // Timeline
   | 7 // News Ticker
   | 8 // Coffee
-  | 9; // Heat Map
+  | 9 // Heat Map
+  | 10; // Remote Workers (background tasks)
 
 /** Data for whiteboard display modes */
 export interface WhiteboardData {
@@ -152,6 +163,9 @@ export interface WhiteboardData {
 
   // Mode 9: File Heat Map
   fileEdits: Record<string, number>;
+
+  // Mode 10: Remote Workers (background tasks)
+  backgroundTasks: BackgroundTask[];
 }
 
 export interface GameState {
