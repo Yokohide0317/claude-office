@@ -13,6 +13,7 @@ from app.core.jsonl_parser import get_last_assistant_response
 from app.core.state_machine import StateMachine
 from app.core.summary_service import get_summary_service
 from app.core.task_file_poller import get_task_file_poller, init_task_file_poller
+from app.core.task_persistence import load_tasks, save_tasks
 from app.core.transcript_poller import get_transcript_poller, init_transcript_poller
 from app.db.database import AsyncSessionLocal
 from app.db.models import EventRecord, SessionRecord
@@ -85,7 +86,7 @@ class EventProcessor:
             self._task_poller_initialized = True
 
     async def _handle_task_file_update(self, session_id: str, todos: list[TodoItem]) -> None:
-        """Handle task file updates by updating state machine and broadcasting."""
+        """Handle task file updates by updating state machine, persisting, and broadcasting."""
         sm = self.sessions.get(session_id)
         if not sm:
             return
@@ -93,6 +94,9 @@ class EventProcessor:
         # Update todos in state machine
         sm.todos = todos
         logger.debug(f"Updated todos for session {session_id}: {len(todos)} items")
+
+        # Persist tasks to database (survives file system cleanup)
+        await save_tasks(session_id, todos)
 
         # Broadcast updated state to clients
         await self._broadcast_state(session_id)
@@ -409,6 +413,10 @@ class EventProcessor:
             # Keep only last 500
             if len(sm.history) > 500:
                 sm.history = sm.history[-500:]
+
+            # Load persisted tasks from database
+            sm.todos = await load_tasks(session_id)
+            logger.debug(f"Restored {len(sm.todos)} tasks for session {session_id}")
 
             self.sessions[session_id] = sm
 

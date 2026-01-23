@@ -42,3 +42,29 @@ class EventRecord(Base):
     data: Mapped[dict[str, Any]] = mapped_column(JSON)
 
     session: Mapped[SessionRecord] = relationship("SessionRecord", back_populates="events")
+
+
+class TaskRecord(Base):
+    """Database model for tasks within a session.
+
+    Stores tasks from both the TodoWrite tool and the new task file system.
+    Tasks are persisted to survive file system cleanup by Claude Code.
+    """
+
+    __tablename__ = "tasks"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String, ForeignKey("sessions.id"), index=True)
+    task_id: Mapped[str] = mapped_column(String)  # Original task ID (e.g., "1", "2")
+    content: Mapped[str] = mapped_column(String)  # Subject/content of the task
+    status: Mapped[str] = mapped_column(String)  # pending, in_progress, completed
+    active_form: Mapped[str | None] = mapped_column(String, nullable=True)
+    sort_order: Mapped[int] = mapped_column(default=0)  # For ordering tasks
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )

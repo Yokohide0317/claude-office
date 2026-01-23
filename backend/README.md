@@ -77,6 +77,8 @@ The backend supports two Claude Code task systems:
 
 Both systems are converted to the same `TodoItem` format for frontend display. The task file poller monitors the task directory and automatically syncs changes to the visualization.
 
+**Task Persistence**: Tasks are persisted to the SQLite database when they change. This ensures tasks survive even if Claude Code removes them from the file system (e.g., when a session ends). When a session is restored, tasks are loaded from the database.
+
 ## Prerequisites
 
 | Requirement | Version | Purpose |
@@ -229,6 +231,7 @@ backend/
 │   │   ├── state_machine.py   # Office state management
 │   │   ├── summary_service.py # AI-powered summaries
 │   │   ├── task_file_poller.py # Claude task file monitoring
+│   │   ├── task_persistence.py # Task database persistence
 │   │   └── transcript_poller.py # Token usage extraction
 │   ├── db/
 │   │   ├── database.py        # SQLAlchemy async setup
@@ -252,6 +255,7 @@ backend/
 │   ├── test_state_machine.py  # State machine tests
 │   ├── test_summary_service.py # Summary service tests
 │   ├── test_task_file_poller.py # Task file polling tests
+│   ├── test_task_persistence.py # Task database persistence tests
 │   └── test_transcript_poller.py # Transcript polling tests
 ├── pyproject.toml             # Project dependencies
 ├── Makefile                   # Development commands
