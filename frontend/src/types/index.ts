@@ -122,50 +122,50 @@ export interface BackgroundTask {
 export type WhiteboardMode =
   | 0 // Todo List (existing)
   | 1 // Tool Pizza
-  | 2 // Org Chart
-  | 3 // Stonks
-  | 4 // Weather
-  | 5 // Safety Board
-  | 6 // Timeline
-  | 7 // News Ticker
-  | 8 // Coffee
-  | 9 // Heat Map
-  | 10; // Remote Workers (background tasks)
+  | 2 // Remote Workers (background tasks)
+  | 3 // Org Chart
+  | 4 // Stonks
+  | 5 // Weather
+  | 6 // Safety Board
+  | 7 // Timeline
+  | 8 // News Ticker
+  | 9 // Coffee
+  | 10; // Heat Map
 
 /** Data for whiteboard display modes */
 export interface WhiteboardData {
   // Mode 1: Tool Usage Pizza Chart
   toolUsage: Record<string, number>;
 
-  // Mode 3: Productivity Stonks
+  // Mode 2: Remote Workers (background tasks)
+  backgroundTasks: BackgroundTask[];
+
+  // Mode 4: Productivity Stonks
   taskCompletedCount: number;
   bugFixedCount: number;
   coffeeBreakCount: number;
   codeWrittenCount: number;
 
-  // Mode 4: Weather
+  // Mode 5: Weather
   recentErrorCount: number;
   recentSuccessCount: number;
   activityLevel: number; // 0.0 to 1.0
 
-  // Mode 5: Safety Board
+  // Mode 6: Safety Board
   consecutiveSuccesses: number;
   lastIncidentTime: string | null;
 
-  // Mode 6: Agent Timeline
+  // Mode 7: Agent Timeline
   agentLifespans: AgentLifespan[];
 
-  // Mode 7: News Ticker
+  // Mode 8: News Ticker
   newsItems: NewsItem[];
 
-  // Mode 8: Coffee
+  // Mode 9: Coffee
   coffeeCups: number;
 
-  // Mode 9: File Heat Map
+  // Mode 10: File Heat Map
   fileEdits: Record<string, number>;
-
-  // Mode 10: Remote Workers (background tasks)
-  backgroundTasks: BackgroundTask[];
 }
 
 export interface GameState {

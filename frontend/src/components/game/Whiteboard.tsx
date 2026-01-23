@@ -20,17 +20,18 @@ import { useGameStore } from "@/stores/gameStore";
 /**
  * Whiteboard - Office whiteboard display with multiple modes
  *
- * Click anywhere on the whiteboard to cycle through 10 display modes:
+ * Click anywhere on the whiteboard to cycle through 11 display modes:
  * 0: Todo List (default)
  * 1: Tool Pizza (pie chart of tool usage)
- * 2: Org Chart (boss + agents hierarchy)
- * 3: Stonks (fake stock tickers)
- * 4: Weather (success rate indicator)
- * 5: Safety Board (days since incident)
- * 6: Timeline (agent lifespans)
- * 7: News Ticker (scrolling headlines)
- * 8: Coffee (coffee cup tracker)
- * 9: Heat Map (file edit frequency)
+ * 2: Remote Workers (background task status)
+ * 3: Org Chart (boss + agents hierarchy)
+ * 4: Stonks (fake stock tickers)
+ * 5: Weather (success rate indicator)
+ * 6: Safety Board (days since incident)
+ * 7: Timeline (agent lifespans)
+ * 8: News Ticker (scrolling headlines)
+ * 9: Coffee (coffee cup tracker)
+ * 10: Heat Map (file edit frequency)
  */
 
 // ============================================================================
@@ -40,15 +41,15 @@ import { useGameStore } from "@/stores/gameStore";
 const MODE_INFO: Record<WhiteboardMode, { name: string; icon: string }> = {
   0: { name: "TODO", icon: "📋" },
   1: { name: "TOOL USE", icon: "🍕" },
-  2: { name: "ORG", icon: "📊" },
-  3: { name: "STONKS", icon: "📈" },
-  4: { name: "WEATHER", icon: "🌤️" },
-  5: { name: "SAFETY", icon: "⚠️" },
-  6: { name: "TIMELINE", icon: "📅" },
-  7: { name: "NEWS", icon: "📰" },
-  8: { name: "COFFEE", icon: "☕" },
-  9: { name: "HEATMAP", icon: "🔥" },
-  10: { name: "REMOTE", icon: "📹" },
+  2: { name: "REMOTE", icon: "📹" },
+  3: { name: "ORG", icon: "📊" },
+  4: { name: "STONKS", icon: "📈" },
+  5: { name: "WEATHER", icon: "🌤️" },
+  6: { name: "SAFETY", icon: "⚠️" },
+  7: { name: "TIMELINE", icon: "📅" },
+  8: { name: "NEWS", icon: "📰" },
+  9: { name: "COFFEE", icon: "☕" },
+  10: { name: "HEATMAP", icon: "🔥" },
 };
 
 // ============================================================================
@@ -1489,23 +1490,23 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
       case 1:
         return <PizzaChartMode toolUsage={whiteboardData.toolUsage} />;
       case 2:
-        return <OrgChartMode agents={agentList} bossTask={bossTask} />;
-      case 3:
-        return <StonksMode data={whiteboardData} />;
-      case 4:
-        return <WeatherMode data={whiteboardData} />;
-      case 5:
-        return <SafetyMode data={whiteboardData} />;
-      case 6:
-        return <TimelineMode data={whiteboardData} />;
-      case 7:
-        return <NewsTickerMode data={whiteboardData} />;
-      case 8:
-        return <CoffeeMode data={whiteboardData} />;
-      case 9:
-        return <HeatMapMode data={whiteboardData} />;
-      case 10:
         return <RemoteWorkersMode data={whiteboardData} />;
+      case 3:
+        return <OrgChartMode agents={agentList} bossTask={bossTask} />;
+      case 4:
+        return <StonksMode data={whiteboardData} />;
+      case 5:
+        return <WeatherMode data={whiteboardData} />;
+      case 6:
+        return <SafetyMode data={whiteboardData} />;
+      case 7:
+        return <TimelineMode data={whiteboardData} />;
+      case 8:
+        return <NewsTickerMode data={whiteboardData} />;
+      case 9:
+        return <CoffeeMode data={whiteboardData} />;
+      case 10:
+        return <HeatMapMode data={whiteboardData} />;
       default:
         return <TodoListMode todos={todos} />;
     }
