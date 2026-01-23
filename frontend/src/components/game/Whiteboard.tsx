@@ -20,9 +20,11 @@ import { useGameStore } from "@/stores/gameStore";
 /**
  * Whiteboard - Office whiteboard display with multiple modes
  *
- * Click anywhere on the whiteboard to cycle through 11 display modes:
- * 0: Todo List (default) - hotkey: T
- * 1: Remote Workers (background task status) - hotkey: B
+ * Click anywhere on the whiteboard to cycle through 11 display modes.
+ * Keyboard shortcuts: 0-9 jump to that mode, T = Todo, B = Background Tasks
+ *
+ * 0: Todo List (default)
+ * 1: Remote Workers (background task status)
  * 2: Tool Pizza (pie chart of tool usage)
  * 3: Org Chart (boss + agents hierarchy)
  * 4: Stonks (fake stock tickers)
@@ -31,7 +33,7 @@ import { useGameStore } from "@/stores/gameStore";
  * 7: Timeline (agent lifespans)
  * 8: News Ticker (scrolling headlines)
  * 9: Coffee (coffee cup tracker)
- * 10: Heat Map (file edit frequency)
+ * 10: Heat Map (file edit frequency) - click to reach from mode 9
  */
 
 // ============================================================================
@@ -1462,7 +1464,7 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
   const agentsMap = useGameStore((s) => s.agents);
   const bossTask = useGameStore((s) => s.boss.currentTask);
 
-  // Keyboard hotkeys: T = Todo List (0), B = Background Tasks (1)
+  // Keyboard hotkeys: T = Todo List (0), B = Background Tasks (1), 0-9 = modes
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if typing in an input field
@@ -1473,7 +1475,16 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
         return;
       }
 
-      switch (e.key.toLowerCase()) {
+      const key = e.key.toLowerCase();
+
+      // Number keys 0-9 set mode directly
+      if (key >= "0" && key <= "9") {
+        setMode(parseInt(key, 10) as WhiteboardMode);
+        return;
+      }
+
+      // Letter hotkeys
+      switch (key) {
         case "t":
           setMode(0);
           break;
