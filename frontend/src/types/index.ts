@@ -120,9 +120,9 @@ export interface BackgroundTask {
 
 /** Whiteboard display mode */
 export type WhiteboardMode =
-  | 0 // Todo List (existing)
-  | 1 // Tool Pizza
-  | 2 // Remote Workers (background tasks)
+  | 0 // Todo List (existing) - hotkey: T
+  | 1 // Remote Workers (background tasks) - hotkey: B
+  | 2 // Tool Pizza
   | 3 // Org Chart
   | 4 // Stonks
   | 5 // Weather
@@ -134,11 +134,11 @@ export type WhiteboardMode =
 
 /** Data for whiteboard display modes */
 export interface WhiteboardData {
-  // Mode 1: Tool Usage Pizza Chart
-  toolUsage: Record<string, number>;
-
-  // Mode 2: Remote Workers (background tasks)
+  // Mode 1: Remote Workers (background tasks)
   backgroundTasks: BackgroundTask[];
+
+  // Mode 2: Tool Usage Pizza Chart
+  toolUsage: Record<string, number>;
 
   // Mode 4: Productivity Stonks
   taskCompletedCount: number;

@@ -21,9 +21,9 @@ import { useGameStore } from "@/stores/gameStore";
  * Whiteboard - Office whiteboard display with multiple modes
  *
  * Click anywhere on the whiteboard to cycle through 11 display modes:
- * 0: Todo List (default)
- * 1: Tool Pizza (pie chart of tool usage)
- * 2: Remote Workers (background task status)
+ * 0: Todo List (default) - hotkey: T
+ * 1: Remote Workers (background task status) - hotkey: B
+ * 2: Tool Pizza (pie chart of tool usage)
  * 3: Org Chart (boss + agents hierarchy)
  * 4: Stonks (fake stock tickers)
  * 5: Weather (success rate indicator)
@@ -40,8 +40,8 @@ import { useGameStore } from "@/stores/gameStore";
 
 const MODE_INFO: Record<WhiteboardMode, { name: string; icon: string }> = {
   0: { name: "TODO", icon: "📋" },
-  1: { name: "TOOL USE", icon: "🍕" },
-  2: { name: "REMOTE", icon: "📹" },
+  1: { name: "REMOTE", icon: "📹" },
+  2: { name: "TOOL USE", icon: "🍕" },
   3: { name: "ORG", icon: "📊" },
   4: { name: "STONKS", icon: "📈" },
   5: { name: "WEATHER", icon: "🌤️" },
@@ -1458,8 +1458,34 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
   const whiteboardData = useGameStore((s) => s.whiteboardData);
   const whiteboardMode = useGameStore((s) => s.whiteboardMode);
   const cycleMode = useGameStore((s) => s.cycleWhiteboardMode);
+  const setMode = useGameStore((s) => s.setWhiteboardMode);
   const agentsMap = useGameStore((s) => s.agents);
   const bossTask = useGameStore((s) => s.boss.currentTask);
+
+  // Keyboard hotkeys: T = Todo List (0), B = Background Tasks (1)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input field
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case "t":
+          setMode(0);
+          break;
+        case "b":
+          setMode(1);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setMode]);
 
   // Convert agent animation state to basic Agent interface for OrgChart
   // Use useMemo to avoid creating new arrays on every render
@@ -1488,9 +1514,9 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
       case 0:
         return <TodoListMode todos={todos} />;
       case 1:
-        return <PizzaChartMode toolUsage={whiteboardData.toolUsage} />;
-      case 2:
         return <RemoteWorkersMode data={whiteboardData} />;
+      case 2:
+        return <PizzaChartMode toolUsage={whiteboardData.toolUsage} />;
       case 3:
         return <OrgChartMode agents={agentList} bossTask={bossTask} />;
       case 4:

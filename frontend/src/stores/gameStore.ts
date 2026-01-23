@@ -216,6 +216,7 @@ interface GameStore {
   whiteboardData: WhiteboardData;
   whiteboardMode: WhiteboardMode;
   setWhiteboardData: (data: WhiteboardData) => void;
+  setWhiteboardMode: (mode: WhiteboardMode) => void;
   cycleWhiteboardMode: () => void;
 
   // ========== UI State ==========
@@ -907,6 +908,8 @@ export const useGameStore = create<GameStore>()(
     // ========================================================================
 
     setWhiteboardData: (whiteboardData) => set({ whiteboardData }),
+
+    setWhiteboardMode: (whiteboardMode) => set({ whiteboardMode }),
 
     cycleWhiteboardMode: () =>
       set((state) => ({
