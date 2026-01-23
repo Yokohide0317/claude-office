@@ -1337,7 +1337,8 @@ function RemoteWorkersMode({ data }: RemoteWorkersModeProps): ReactNode {
     return (
       <pixiContainer>
         <pixiGraphics draw={drawVideoGrid} />
-        <pixiContainer x={165} y={55} scale={0.5}>
+        {/* Position text below the grid (grid ends at ~109px) */}
+        <pixiContainer x={165} y={115} scale={0.5}>
           <pixiText
             text="No remote workers"
             anchor={0.5}
