@@ -72,7 +72,7 @@ export function DigitalClock({ format }: DigitalClockProps): ReactNode {
       {/* Main time display */}
       <pixiText
         text={timeString}
-        x={format === "12h" ? -4 : 0}
+        x={format === "12h" ? -8 : 0}
         y={-2}
         anchor={0.5}
         style={
@@ -94,7 +94,7 @@ export function DigitalClock({ format }: DigitalClockProps): ReactNode {
       {format === "12h" && (
         <pixiText
           text={getAmPm(time)}
-          x={32}
+          x={36}
           y={-2}
           anchor={0.5}
           style={
