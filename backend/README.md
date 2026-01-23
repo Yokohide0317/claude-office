@@ -180,6 +180,26 @@ CLAUDE_PATH_CONTAINER=/claude-data
 |------|-------------|
 | `/ws/{session_id}` | Real-time state updates for a session |
 
+## Supported Event Types
+
+The backend processes the following event types from Claude Code hooks:
+
+| Event Type | Description | State Machine Effect |
+|------------|-------------|---------------------|
+| `session_start` | New Claude Code session begins | Initialize office, boss arrives |
+| `session_end` | Session terminates | Cleanup, boss leaves |
+| `pre_tool_use` | Tool execution starting | Boss/agent shows working state |
+| `post_tool_use` | Tool execution completed | Update tool usage stats, file edits |
+| `user_prompt_submit` | User sends a prompt | Phone rings, boss receives task |
+| `permission_request` | Tool needs user approval | Show waiting state |
+| `notification` | System notification | Display notification |
+| `stop` | Session completing | Boss shows completion message |
+| `subagent_start` | Task tool spawns agent | Create employee agent |
+| `subagent_info` | Native agent ID available | Link agent to Claude's ID |
+| `subagent_stop` | Task agent completes | Agent returns work, departs |
+| `context_compaction` | Context window compacted | Coffee break animation |
+| `background_task_notification` | Background task completed | Update remote workers display |
+
 ## Project Structure
 
 ```
