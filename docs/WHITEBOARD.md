@@ -1,21 +1,23 @@
 # Whiteboard Display System
 
-The whiteboard is an interactive office element that displays session data in 10 different visualization modes. Click anywhere on the whiteboard to cycle through modes.
+The whiteboard is an interactive office element that displays session data in 11 different visualization modes. Click anywhere on the whiteboard to cycle through modes, or use keyboard shortcuts.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Display Modes](#display-modes)
   - [Mode 0: Todo List](#mode-0-todo-list)
-  - [Mode 1: Tool Use](#mode-1-tool-use)
-  - [Mode 2: Org Chart](#mode-2-org-chart)
-  - [Mode 3: Stonks](#mode-3-stonks)
-  - [Mode 4: Weather](#mode-4-weather)
-  - [Mode 5: Safety Board](#mode-5-safety-board)
-  - [Mode 6: Timeline](#mode-6-timeline)
-  - [Mode 7: News Ticker](#mode-7-news-ticker)
-  - [Mode 8: Coffee Tracker](#mode-8-coffee-tracker)
-  - [Mode 9: Heat Map](#mode-9-heat-map)
+  - [Mode 1: Remote Workers](#mode-1-remote-workers)
+  - [Mode 2: Tool Use](#mode-2-tool-use)
+  - [Mode 3: Org Chart](#mode-3-org-chart)
+  - [Mode 4: Stonks](#mode-4-stonks)
+  - [Mode 5: Weather](#mode-5-weather)
+  - [Mode 6: Safety Board](#mode-6-safety-board)
+  - [Mode 7: Timeline](#mode-7-timeline)
+  - [Mode 8: News Ticker](#mode-8-news-ticker)
+  - [Mode 9: Coffee Tracker](#mode-9-coffee-tracker)
+  - [Mode 10: Heat Map](#mode-10-heat-map)
 - [Data Flow](#data-flow)
 - [Backend Tracking Logic](#backend-tracking-logic)
 - [Related Documentation](#related-documentation)
@@ -24,12 +26,31 @@ The whiteboard is an interactive office element that displays session data in 10
 
 The whiteboard component visualizes real-time session metrics in whimsical, office-themed displays. Each mode transforms raw session data into an engaging visualization that reflects the current state of Claude Code operations.
 
-**Interaction:** Click the whiteboard to cycle through modes (0 → 1 → 2 → ... → 9 → 0)
+**Interaction:** Click the whiteboard to cycle through modes (0 → 1 → 2 → ... → 10 → 0), or use keyboard shortcuts.
 
 **Visual Elements:**
 - Header bar showing current mode name and icon
-- Mode indicator dots (10 dots at bottom, current mode highlighted)
+- Mode indicator dots (11 dots at bottom, current mode highlighted)
 - Marker tray with colored markers (decorative)
+
+## Keyboard Shortcuts
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `0` | 0 | Todo List |
+| `1` | 1 | Remote Workers |
+| `2` | 2 | Tool Use |
+| `3` | 3 | Org Chart |
+| `4` | 4 | Stonks |
+| `5` | 5 | Weather |
+| `6` | 6 | Safety Board |
+| `7` | 7 | Timeline |
+| `8` | 8 | News Ticker |
+| `9` | 9 | Coffee Tracker |
+| `T` | 0 | Todo List (alias) |
+| `B` | 1 | Background Tasks / Remote Workers (alias) |
+
+Mode 10 (Heat Map) is accessible by clicking from mode 9.
 
 ## Display Modes
 
@@ -50,7 +71,31 @@ Displays the current task list from Claude's TodoWrite tool.
 
 ---
 
-### Mode 1: Tool Use
+### Mode 1: Remote Workers
+
+**Icon:** `📹` **Name:** REMOTE
+
+Displays background task notifications in a video-call-style grid layout. Shows tasks that were run with `run_in_background: true` in Claude Code.
+
+**Layout:**
+- 3x2 grid of dark "video call" tiles
+- Each tile shows: task ID, status LED, summary text
+- Shows up to 6 most recent tasks
+- "+N more" indicator for overflow
+
+**Status LED Colors:**
+
+| Status | Color | Emoji |
+|--------|-------|-------|
+| completed | Green | ✅ |
+| failed | Red | ❌ |
+| running | Blue | ⏳ |
+
+**Data Source:** `background_task_notification` events parsed from `<task-notification>` XML in user prompts
+
+---
+
+### Mode 2: Tool Use
 
 **Icon:** `🍕` **Name:** TOOL USE
 
@@ -73,7 +118,7 @@ Pie chart visualization of tool usage by category.
 
 ---
 
-### Mode 2: Org Chart
+### Mode 3: Org Chart
 
 **Icon:** `📊` **Name:** ORG
 
@@ -99,7 +144,7 @@ Displays boss and subagent hierarchy with humorous job titles.
 
 ---
 
-### Mode 3: Stonks
+### Mode 4: Stonks
 
 **Icon:** `📈` **Name:** STONKS
 
@@ -127,7 +172,7 @@ Fake stock ticker displaying session productivity metrics.
 
 ---
 
-### Mode 4: Weather
+### Mode 5: Weather
 
 **Icon:** `🌤️` **Name:** WEATHER
 
@@ -154,7 +199,7 @@ Weather metaphor for session health based on success rate and activity.
 
 ---
 
-### Mode 5: Safety Board
+### Mode 6: Safety Board
 
 **Icon:** `⚠️` **Name:** SAFETY
 
@@ -174,7 +219,7 @@ Parody of workplace safety signs showing consecutive successful tool uses.
 
 ---
 
-### Mode 6: Timeline
+### Mode 7: Timeline
 
 **Icon:** `📅` **Name:** TIMELINE
 
@@ -200,7 +245,7 @@ Gantt chart showing agent lifespans and coffee breaks during the session.
 
 ---
 
-### Mode 7: News Ticker
+### Mode 8: News Ticker
 
 **Icon:** `📰` **Name:** NEWS
 
@@ -211,7 +256,7 @@ Breaking news headlines about session events.
 | Category | Color | Triggers |
 |----------|-------|----------|
 | tool | Blue | Significant tool events |
-| agent | Green | Agent joins/completes |
+| agent | Green | Agent joins/completes, background task updates |
 | session | Purple | Session start, job completion |
 | error | Red | Tool failures |
 | coffee | Amber | Context compaction |
@@ -228,10 +273,11 @@ Breaking news headlines about session events.
 - "🎉 Job completed! Great work everyone!"
 - "☕ Coffee break #3! Context compacted."
 - "⚠️ Bash failed: permission denied"
+- "✅ Task bg_task_a: Linting codebase..."
 
 ---
 
-### Mode 8: Coffee Tracker
+### Mode 9: Coffee Tracker
 
 **Icon:** `☕` **Name:** COFFEE
 
@@ -248,7 +294,7 @@ Tracks context compaction events as coffee breaks.
 
 ---
 
-### Mode 9: Heat Map
+### Mode 10: Heat Map
 
 **Icon:** `🔥` **Name:** HEATMAP
 
@@ -280,6 +326,7 @@ graph TD
     Hook -->|SUBAGENT_START| Backend
     Hook -->|SUBAGENT_STOP| Backend
     Hook -->|CONTEXT_COMPACTION| Backend
+    Hook -->|BACKGROUND_TASK_NOTIFICATION| Backend
     Backend -->|state_update| WS
     WS -->|whiteboardData| Store
     Store -->|props| WB
@@ -324,6 +371,7 @@ tool_categories = {
 | `CONTEXT_COMPACTION` | Coffee cups, news items |
 | `SESSION_START` | News items, resets counters |
 | `STOP` | News items (job completion) |
+| `BACKGROUND_TASK_NOTIFICATION` | Background tasks list, news items |
 
 ### Success/Failure Tracking
 
