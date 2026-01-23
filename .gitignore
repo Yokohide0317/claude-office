@@ -74,7 +74,7 @@ out/
 # dist/ is handled in Python section but applies here too
 
 # Bun
-# bun.lockb is binary but usually recommended to commit. 
+# bun.lockb is binary but usually recommended to commit.
 # If you prefer not to commit it, uncomment the line below.
 # bun.lockb
 

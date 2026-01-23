@@ -138,7 +138,7 @@ graph LR
 | `components/game/TrashCanSprite.tsx` | Context utilization visualization with stomp effect |
 | `components/game/CityWindow.tsx` | City skyline with real-time day/night cycle |
 | `components/game/EmployeeOfTheMonth.tsx` | Employee of the Month wall poster |
-| `components/game/Whiteboard.tsx` | Multi-mode display with 10 visualization modes (see [WHITEBOARD.md](WHITEBOARD.md)) |
+| `components/game/Whiteboard.tsx` | Multi-mode display with 11 visualization modes (see [WHITEBOARD.md](WHITEBOARD.md)) |
 | `components/game/SafetySign.tsx` | Tool counter since last compaction |
 | `components/game/PrinterStation.tsx` | Animated printer for report generation |
 | `components/game/Elevator.tsx` | Agent arrival/departure elevator with doors |
@@ -194,6 +194,7 @@ Events flow from Claude Code hooks through the backend to the frontend:
 | `subagent_start` | Task tool spawning a subagent |
 | `subagent_info` | Updates agent with native_agent_id and transcript path |
 | `subagent_stop` | Subagent completing work |
+| `background_task_notification` | Background task completed or failed |
 | `agent_update` | Agent state update |
 | `context_compaction` | Context window was compacted |
 | `stop` | Main agent completing work |
