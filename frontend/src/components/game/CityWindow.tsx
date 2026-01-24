@@ -157,6 +157,9 @@ export function CityWindow(): ReactNode {
     () => new Set(),
   );
 
+  // Cloud positions (x offsets that animate)
+  const [cloudOffsets, setCloudOffsets] = useState({ top: 0, bottom: 0 });
+
   // Fast time is only active when both debug mode is enabled AND the toggle is on
   // When debugMode is false, fastTimeEnabled is automatically false regardless of toggle state
   const fastTimeEnabled = debugMode && fastTimeToggle;
@@ -196,6 +199,19 @@ export function CityWindow(): ReactNode {
       return () => clearInterval(interval);
     }
   }, [fastTimeEnabled]);
+
+  // Animate clouds drifting across the sky
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCloudOffsets((prev) => ({
+        // Top cloud moves slower (0.15 pixels per frame)
+        top: (prev.top + 0.15) % (INNER_WIDTH + 60),
+        // Bottom cloud moves faster (0.3 pixels per frame)
+        bottom: (prev.bottom + 0.3) % (INNER_WIDTH + 60),
+      }));
+    }, 50); // ~20 FPS for smooth animation
+    return () => clearInterval(interval);
+  }, []);
 
   // Randomly toggle a window light every 1-5 minutes
   useEffect(() => {
@@ -460,8 +476,33 @@ export function CityWindow(): ReactNode {
         if (midday > 0.5) {
           const cloudAlpha = (midday - 0.5) * 2;
           const cloudColor = lerpColor(skyColors[2], 0xffffff, cloudAlpha);
-          drawCloud(g, skyX + 25, skyY + 20, cloudColor);
-          drawCloud(g, skyX + 100, skyY + 35, cloudColor);
+          // Top cloud - moves slower, wraps around
+          // Start off-screen left (-30), travel across window, wrap when past right edge
+          const topCloudX = skyX - 30 + (cloudOffsets.top % (INNER_WIDTH + 60));
+          // Only draw if cloud is within window bounds (with some margin for cloud width)
+          if (topCloudX > skyX - 30 && topCloudX < skyX + INNER_WIDTH) {
+            drawCloudClipped(
+              g,
+              topCloudX,
+              skyY + 18,
+              cloudColor,
+              skyX,
+              skyX + INNER_WIDTH,
+            );
+          }
+          // Bottom cloud - moves faster, wraps around
+          const bottomCloudX =
+            skyX - 30 + (cloudOffsets.bottom % (INNER_WIDTH + 60));
+          if (bottomCloudX > skyX - 30 && bottomCloudX < skyX + INNER_WIDTH) {
+            drawCloudClipped(
+              g,
+              bottomCloudX,
+              skyY + 38,
+              cloudColor,
+              skyX,
+              skyX + INNER_WIDTH,
+            );
+          }
         }
       }
 
@@ -521,7 +562,7 @@ export function CityWindow(): ReactNode {
       g.rect(skyX, skyY + INNER_HEIGHT / 2 - 2, INNER_WIDTH, 4);
       g.fill(dividerColor);
     },
-    [timeState, buildings, time, toggledWindows, citySeed],
+    [timeState, buildings, time, toggledWindows, citySeed, cloudOffsets],
   );
 
   return (
@@ -647,11 +688,29 @@ function getInterpolatedWindowLitChance(
 }
 
 /**
- * Draw a simple cloud shape
+ * Draw a cloud shape clipped to horizontal bounds
+ * Only draws cloud circles that are within the visible region
  */
-function drawCloud(g: Graphics, x: number, y: number, color: number): void {
-  g.circle(x, y, 8);
-  g.circle(x + 10, y - 2, 10);
-  g.circle(x + 20, y, 7);
+function drawCloudClipped(
+  g: Graphics,
+  x: number,
+  y: number,
+  color: number,
+  minX: number,
+  maxX: number,
+): void {
+  // Cloud consists of 3 circles - only draw those within bounds
+  const circles = [
+    { cx: x, cy: y, r: 8 },
+    { cx: x + 10, cy: y - 2, r: 10 },
+    { cx: x + 20, cy: y, r: 7 },
+  ];
+
+  for (const { cx, cy, r } of circles) {
+    // Check if circle is at least partially within bounds
+    if (cx + r > minX && cx - r < maxX) {
+      g.circle(cx, cy, r);
+    }
+  }
   g.fill(color);
 }
