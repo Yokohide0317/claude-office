@@ -1,5 +1,7 @@
 """Tests for the task persistence module."""
 
+from collections.abc import AsyncGenerator
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -10,7 +12,7 @@ from app.models.common import TodoItem, TodoStatus
 
 
 @pytest.fixture
-async def test_db() -> async_sessionmaker[AsyncSession]:
+async def test_db() -> AsyncGenerator[async_sessionmaker[AsyncSession]]:
     """Create a test database with in-memory SQLite."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
     async with engine.begin() as conn:
@@ -23,7 +25,10 @@ async def test_db() -> async_sessionmaker[AsyncSession]:
         class_=AsyncSession,
         expire_on_commit=False,
     )
-    return session_factory
+    yield session_factory
+
+    # Cleanup: dispose of the engine to release resources
+    await engine.dispose()
 
 
 class TestTaskPersistence:
@@ -34,9 +39,14 @@ class TestTaskPersistence:
         """Test saving and loading tasks."""
         session_id = "test-session-1"
         todos = [
-            TodoItem(content="First task", status=TodoStatus.PENDING),
-            TodoItem(content="Second task", status=TodoStatus.IN_PROGRESS, active_form="Working"),
-            TodoItem(content="Third task", status=TodoStatus.COMPLETED),
+            TodoItem(task_id="1", content="First task", status=TodoStatus.PENDING),
+            TodoItem(
+                task_id="2",
+                content="Second task",
+                status=TodoStatus.IN_PROGRESS,
+                active_form="Working",
+            ),
+            TodoItem(task_id="3", content="Third task", status=TodoStatus.COMPLETED),
         ]
 
         # Save tasks
@@ -46,11 +56,14 @@ class TestTaskPersistence:
         loaded = await load_tasks(session_id)
 
         assert len(loaded) == 3
+        assert loaded[0].task_id == "1"
         assert loaded[0].content == "First task"
         assert loaded[0].status == TodoStatus.PENDING
+        assert loaded[1].task_id == "2"
         assert loaded[1].content == "Second task"
         assert loaded[1].status == TodoStatus.IN_PROGRESS
         assert loaded[1].active_form == "Working"
+        assert loaded[2].task_id == "3"
         assert loaded[2].content == "Third task"
         assert loaded[2].status == TodoStatus.COMPLETED
 
@@ -151,3 +164,85 @@ class TestTaskPersistence:
         loaded = await load_tasks(session_id)
         assert len(loaded) == 1
         assert loaded[0].status == TodoStatus.PENDING
+
+    @pytest.mark.asyncio
+    async def test_save_and_load_all_fields(
+        self, test_db: async_sessionmaker[AsyncSession]
+    ) -> None:
+        """Test saving and loading tasks with all fields."""
+        session_id = "test-session-all-fields"
+        todos = [
+            TodoItem(
+                task_id="1",
+                content="Task with all fields",
+                status=TodoStatus.IN_PROGRESS,
+                active_form="Processing task",
+                description="A detailed description of the task",
+                blocks=["2", "3"],
+                blocked_by=["0"],
+                owner="agent-456",
+                metadata={"priority": "high", "tags": ["urgent", "backend"]},
+            ),
+        ]
+
+        await save_tasks(session_id, todos)
+        loaded = await load_tasks(session_id)
+
+        assert len(loaded) == 1
+        task = loaded[0]
+        assert task.task_id == "1"
+        assert task.content == "Task with all fields"
+        assert task.status == TodoStatus.IN_PROGRESS
+        assert task.active_form == "Processing task"
+        assert task.description == "A detailed description of the task"
+        assert task.blocks == ["2", "3"]
+        assert task.blocked_by == ["0"]
+        assert task.owner == "agent-456"
+        assert task.metadata == {"priority": "high", "tags": ["urgent", "backend"]}
+
+    @pytest.mark.asyncio
+    async def test_save_and_load_empty_optional_fields(
+        self, test_db: async_sessionmaker[AsyncSession]
+    ) -> None:
+        """Test saving and loading tasks with empty optional fields."""
+        session_id = "test-session-empty-fields"
+        todos = [
+            TodoItem(
+                task_id="1",
+                content="Task with minimal fields",
+                status=TodoStatus.PENDING,
+            ),
+        ]
+
+        await save_tasks(session_id, todos)
+        loaded = await load_tasks(session_id)
+
+        assert len(loaded) == 1
+        task = loaded[0]
+        assert task.task_id == "1"
+        assert task.content == "Task with minimal fields"
+        assert task.status == TodoStatus.PENDING
+        assert task.active_form is None
+        assert task.description is None
+        assert task.blocks == []
+        assert task.blocked_by == []
+        assert task.owner is None
+        assert task.metadata is None
+
+    @pytest.mark.asyncio
+    async def test_task_id_from_todo_preserved(
+        self, test_db: async_sessionmaker[AsyncSession]
+    ) -> None:
+        """Test that task_id from TodoItem is preserved, not overwritten with index."""
+        session_id = "test-session-task-id"
+        todos = [
+            TodoItem(task_id="custom-id-abc", content="Task A", status=TodoStatus.PENDING),
+            TodoItem(task_id="custom-id-xyz", content="Task B", status=TodoStatus.PENDING),
+        ]
+
+        await save_tasks(session_id, todos)
+        loaded = await load_tasks(session_id)
+
+        assert len(loaded) == 2
+        assert loaded[0].task_id == "custom-id-abc"
+        assert loaded[1].task_id == "custom-id-xyz"

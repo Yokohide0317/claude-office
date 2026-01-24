@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -36,8 +37,14 @@ class TodoStatus(StrEnum):
 
 
 class TodoItem(BaseModel):
-    """A single item from the TodoWrite tool."""
+    """A single item from the TodoWrite tool or task file system."""
 
+    task_id: str = ""
     content: str
     status: TodoStatus
     active_form: str | None = None
+    description: str | None = None
+    blocks: list[str] = []
+    blocked_by: list[str] = []
+    owner: str | None = None
+    metadata: dict[str, Any] | None = None

@@ -25,12 +25,35 @@ from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from app.config import get_settings
 from app.models.common import TodoItem, TodoStatus
 
 logger = logging.getLogger(__name__)
+
+
+def _extract_string_list(data: Any) -> list[str]:
+    """Extract a list of strings from task data."""
+    if not isinstance(data, list):
+        return []
+    typed_list = cast(list[Any], data)
+    result: list[str] = []
+    for item in typed_list:
+        result.append(str(item))
+    return result
+
+
+def _extract_metadata(data: Any) -> dict[str, Any] | None:
+    """Extract metadata dict from task data."""
+    if not isinstance(data, dict):
+        return None
+    typed_dict = cast(dict[Any, Any], data)
+    result: dict[str, Any] = {}
+    for key, value in typed_dict.items():
+        result[str(key)] = value
+    return result
+
 
 POLL_INTERVAL_SECONDS = 1.0
 INACTIVITY_TIMEOUT = timedelta(minutes=30)
@@ -246,10 +269,36 @@ class TaskFilePoller:
         active_form_raw = task_data.get("activeForm")
         active_form: str | None = str(active_form_raw) if active_form_raw else None
 
+        # Extract task ID
+        task_id = str(task_data.get("id", ""))
+
+        # Extract description
+        description_raw = task_data.get("description")
+        description: str | None = str(description_raw) if description_raw else None
+
+        # Extract blocks (list of task IDs this task blocks)
+        blocks = _extract_string_list(task_data.get("blocks", []))
+
+        # Extract blockedBy (list of task IDs that block this task)
+        blocked_by = _extract_string_list(task_data.get("blockedBy", []))
+
+        # Extract owner
+        owner_raw = task_data.get("owner")
+        owner: str | None = str(owner_raw) if owner_raw else None
+
+        # Extract metadata (arbitrary key-value pairs)
+        metadata = _extract_metadata(task_data.get("metadata"))
+
         return TodoItem(
+            task_id=task_id,
             content=subject,
             status=status,
             active_form=active_form,
+            description=description,
+            blocks=blocks,
+            blocked_by=blocked_by,
+            owner=owner,
+            metadata=metadata,
         )
 
 

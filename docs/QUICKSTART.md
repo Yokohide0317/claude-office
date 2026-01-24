@@ -246,6 +246,19 @@ lsof -ti:3000 | xargs kill -9
 
 > **⚠️ Warning:** After installing hooks, you must restart Claude Code for them to take effect.
 
+### Backend Crashes or Won't Start
+
+If the backend crashes on startup or the frontend can't maintain a connection, the SQLite database may be corrupted or have an incompatible schema (e.g., after a code update that adds new columns).
+
+**Solution: Delete the database and let it recreate:**
+
+```bash
+rm backend/visualizer.db
+# Restart the backend - database will be recreated with current schema
+```
+
+> **📝 Note:** This will clear all stored session history. The database is automatically recreated on startup with the correct schema.
+
 ## Related Documentation
 
 - [README.md](../README.md) - Project overview and full feature list

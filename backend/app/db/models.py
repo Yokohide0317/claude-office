@@ -59,6 +59,11 @@ class TaskRecord(Base):
     content: Mapped[str] = mapped_column(String)  # Subject/content of the task
     status: Mapped[str] = mapped_column(String)  # pending, in_progress, completed
     active_form: Mapped[str | None] = mapped_column(String, nullable=True)
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
+    blocks: Mapped[str | None] = mapped_column(String, nullable=True)  # JSON-serialized list
+    blocked_by: Mapped[str | None] = mapped_column(String, nullable=True)  # JSON-serialized list
+    owner: Mapped[str | None] = mapped_column(String, nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(String, nullable=True)  # JSON-serialized dict
     sort_order: Mapped[int] = mapped_column(default=0)  # For ordering tasks
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
