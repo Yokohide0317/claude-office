@@ -1,11 +1,12 @@
 "use client";
 
-import { Graphics } from "pixi.js";
+import { Graphics, Container } from "pixi.js";
 import {
   useState,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 import {
@@ -160,6 +161,10 @@ export function CityWindow(): ReactNode {
   // Cloud positions (x offsets that animate)
   const [cloudOffsets, setCloudOffsets] = useState({ top: 0, bottom: 0 });
 
+  // Refs for masking
+  const maskRef = useRef<Graphics>(null);
+  const contentContainerRef = useRef<Container>(null);
+
   // Fast time is only active when both debug mode is enabled AND the toggle is on
   // When debugMode is false, fastTimeEnabled is automatically false regardless of toggle state
   const fastTimeEnabled = debugMode && fastTimeToggle;
@@ -199,6 +204,20 @@ export function CityWindow(): ReactNode {
       return () => clearInterval(interval);
     }
   }, [fastTimeEnabled]);
+
+  // Set up mask for content clipping
+  useEffect(() => {
+    if (maskRef.current && contentContainerRef.current) {
+      contentContainerRef.current.mask = maskRef.current;
+    }
+  }, []);
+
+  // Draw the mask (window interior rectangle)
+  const drawMask = useCallback((g: Graphics) => {
+    g.clear();
+    g.rect(FRAME_THICKNESS, FRAME_THICKNESS, INNER_WIDTH, INNER_HEIGHT);
+    g.fill(0xffffff);
+  }, []);
 
   // Animate clouds drifting across the sky
   useEffect(() => {
@@ -477,32 +496,12 @@ export function CityWindow(): ReactNode {
           const cloudAlpha = (midday - 0.5) * 2;
           const cloudColor = lerpColor(skyColors[2], 0xffffff, cloudAlpha);
           // Top cloud - moves slower, wraps around
-          // Start off-screen left (-30), travel across window, wrap when past right edge
           const topCloudX = skyX - 30 + (cloudOffsets.top % (INNER_WIDTH + 60));
-          // Only draw if cloud is within window bounds (with some margin for cloud width)
-          if (topCloudX > skyX - 30 && topCloudX < skyX + INNER_WIDTH) {
-            drawCloudClipped(
-              g,
-              topCloudX,
-              skyY + 18,
-              cloudColor,
-              skyX,
-              skyX + INNER_WIDTH,
-            );
-          }
+          drawCloud(g, topCloudX, skyY + 18, cloudColor);
           // Bottom cloud - moves faster, wraps around
           const bottomCloudX =
             skyX - 30 + (cloudOffsets.bottom % (INNER_WIDTH + 60));
-          if (bottomCloudX > skyX - 30 && bottomCloudX < skyX + INNER_WIDTH) {
-            drawCloudClipped(
-              g,
-              bottomCloudX,
-              skyY + 38,
-              cloudColor,
-              skyX,
-              skyX + INNER_WIDTH,
-            );
-          }
+          drawCloud(g, bottomCloudX, skyY + 38, cloudColor);
         }
       }
 
@@ -567,7 +566,13 @@ export function CityWindow(): ReactNode {
 
   return (
     <pixiContainer>
-      <pixiGraphics draw={drawContent} />
+      {/* Mask for clipping content to window interior */}
+      <pixiGraphics ref={maskRef} draw={drawMask} />
+      {/* Content container with mask applied */}
+      <pixiContainer ref={contentContainerRef}>
+        <pixiGraphics draw={drawContent} />
+      </pixiContainer>
+      {/* Frame drawn on top (not masked) */}
       <pixiGraphics draw={drawFrame} />
     </pixiContainer>
   );
@@ -688,29 +693,11 @@ function getInterpolatedWindowLitChance(
 }
 
 /**
- * Draw a cloud shape clipped to horizontal bounds
- * Only draws cloud circles that are within the visible region
+ * Draw a simple cloud shape
  */
-function drawCloudClipped(
-  g: Graphics,
-  x: number,
-  y: number,
-  color: number,
-  minX: number,
-  maxX: number,
-): void {
-  // Cloud consists of 3 circles - only draw those within bounds
-  const circles = [
-    { cx: x, cy: y, r: 8 },
-    { cx: x + 10, cy: y - 2, r: 10 },
-    { cx: x + 20, cy: y, r: 7 },
-  ];
-
-  for (const { cx, cy, r } of circles) {
-    // Check if circle is at least partially within bounds
-    if (cx + r > minX && cx - r < maxX) {
-      g.circle(cx, cy, r);
-    }
-  }
+function drawCloud(g: Graphics, x: number, y: number, color: number): void {
+  g.circle(x, y, 8);
+  g.circle(x + 10, y - 2, 10);
+  g.circle(x + 20, y, 7);
   g.fill(color);
 }
