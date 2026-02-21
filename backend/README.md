@@ -1,6 +1,6 @@
-# Claude Office Visualizer Backend
+# OpenCode Office Visualizer Backend
 
-FastAPI backend service that processes Claude Code hook events and broadcasts real-time state updates to connected frontend clients via WebSocket.
+FastAPI backend service that processes OpenCode server events and broadcasts real-time state updates to connected frontend clients via WebSocket.
 
 ## Table of Contents
 
@@ -83,7 +83,7 @@ Both systems are converted to the same `TodoItem` format for frontend display. T
 
 | Requirement | Version | Purpose |
 |-------------|---------|---------|
-| Python | 3.14+ | Runtime |
+| Python | 3.11+ | Runtime |
 | uv | Latest | Package management |
 
 ## Installation

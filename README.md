@@ -104,7 +104,7 @@ Then open [http://localhost:3000](http://localhost:3000) and run `opencode serve
 
 ## Prerequisites
 
-- Python 3.14+
+- Python 3.11+
 - Node.js 20+ (Bun auto-detected if available)
 - uv (Python package manager)
 - OpenCode installed and running (or use `opencode serve`)
@@ -269,6 +269,7 @@ Contributions are welcome! Please ensure that all pull requests:
 
 ## Related Documentation
 
+- [User Setup Guide](docs/USER_SETUP.md) - Complete setup guide for your product ⭐
 - [Quick Start Guide](docs/QUICKSTART.md) - Get running in under 5 minutes
 - [Architecture](docs/ARCHITECTURE.md) - System design, data flow, component details
 - [Whiteboard Modes](docs/WHITEBOARD.md) - 11 display modes with keyboard shortcuts
@@ -276,6 +277,5 @@ Contributions are welcome! Please ensure that all pull requests:
 - [AI Summary](docs/AI_SUMMARY.md) - AI-powered summary service documentation
 - [Backend README](backend/README.md) - Backend-specific setup
 - [Frontend README](frontend/README.md) - Frontend-specific setup
-- [Scripts README](scripts/README.md) - Testing and simulation scripts
 - [OpenCode Docs](https://opencode.ai/docs/) - Official OpenCode documentation
 - [CLAUDE.md](CLAUDE.md) - AI assistant instructions for this project

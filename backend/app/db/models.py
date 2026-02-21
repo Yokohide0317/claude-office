@@ -25,7 +25,7 @@ class SessionRecord(Base):
     )
     status: Mapped[str] = mapped_column(String, default="active")
 
-    events: Mapped[list[EventRecord]] = relationship(
+    events: Mapped[list["EventRecord"]] = relationship(
         "EventRecord", back_populates="session", cascade="all, delete-orphan"
     )
 
@@ -41,7 +41,7 @@ class EventRecord(Base):
     event_type: Mapped[str] = mapped_column(String)
     data: Mapped[dict[str, Any]] = mapped_column(JSON)
 
-    session: Mapped[SessionRecord] = relationship("SessionRecord", back_populates="events")
+    session: Mapped["SessionRecord"] = relationship("SessionRecord", back_populates="events")
 
 
 class TaskRecord(Base):
