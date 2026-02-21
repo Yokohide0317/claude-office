@@ -8,8 +8,8 @@ _DEFAULT_DB_PATH = _BACKEND_DIR / "visualizer.db"
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Claude Office Visualizer"
-    VERSION: str = "0.1.0"
+    PROJECT_NAME: str = "OpenCode Office Visualizer"
+    VERSION: str = "0.8.0"
     API_V1_STR: str = "/api/v1"
 
     BACKEND_CORS_ORIGINS: list[str] = [
@@ -23,13 +23,26 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"sqlite+aiosqlite:///{_DEFAULT_DB_PATH}"
     GIT_POLL_INTERVAL: int = 5
 
+    # Claude Code Legacy Settings (for backward compatibility)
     CLAUDE_CODE_OAUTH_TOKEN: str = ""
+    CLAUDE_PATH_HOST: str = ""
+    CLAUDE_PATH_CONTAINER: str = ""
+
+    # Summary Service Settings
     SUMMARY_MODEL: str = "claude-haiku-4-5-20251001"
     SUMMARY_ENABLED: bool = True
     SUMMARY_MAX_TOKENS: int = 1000
 
-    CLAUDE_PATH_HOST: str = ""
-    CLAUDE_PATH_CONTAINER: str = ""
+    # OpenCode Server Settings
+    OPENCODE_SERVER_URL: str = "http://localhost:4096"
+    OPENCODE_SERVER_USERNAME: str = "opencode"
+    OPENCODE_SERVER_PASSWORD: str = ""
+    OPENCODE_ADAPTER_ENABLED: bool = True
+    OPENCODE_HEALTH_CHECK_INTERVAL: int = 30
+    OPENCODE_RECONNECT_DELAY: int = 5
+
+    # Anthropic API for summaries (optional)
+    ANTHROPIC_API_KEY: str = ""
 
     model_config = SettingsConfigDict(env_file=".env")
 

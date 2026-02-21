@@ -494,11 +494,11 @@ export default function V2TestPage(): React.ReactNode {
             <h1
               className={`font-bold text-white tracking-tight flex items-center gap-2 ${isMobile ? "text-lg" : "text-2xl"}`}
             >
-              <span className="text-orange-500">Claude</span>{" "}
+              <span className="text-green-500">OpenCode</span>{" "}
               {!isMobile && "Office Visualizer"}
               {!isMobile && (
                 <span className="text-xs font-mono font-normal px-2 py-0.5 bg-slate-800 rounded text-slate-400 border border-slate-700">
-                  v0.7.0
+                  v0.8.0
                 </span>
               )}
             </h1>

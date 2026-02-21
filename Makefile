@@ -1,6 +1,6 @@
 .PHONY: install install-all dev backend frontend simulate checkall lint fmt test typecheck \
-	hooks-install hooks-uninstall hooks-reinstall hooks-status hooks-logs hooks-logs-follow hooks-logs-clear \
-	hooks-debug-on hooks-debug-off clean clean-db clean-all \
+	test-opencode-adapter \
+	clean clean-db clean-all \
 	dev-tmux dev-tmux-kill dev-tmux-backend dev-tmux-frontend \
 	build-static \
 	docker-build docker-up docker-down docker-logs docker-shell
@@ -12,10 +12,9 @@ PKG_INSTALL := $(shell command -v bun >/dev/null 2>&1 && echo "bun install" || e
 install:
 	cd backend && uv sync
 	cd frontend && $(PKG_INSTALL)
-	cd hooks && uv sync
 
-install-all: install hooks-install
-	@echo "All components installed including hooks"
+install-all: install
+	@echo "All components installed"
 
 dev:
 	@echo "Starting backend and frontend in parallel..."
@@ -39,6 +38,9 @@ simulate:
 test-agent:
 	uv run python scripts/test_single_agent.py
 
+test-opencode-adapter:
+	uv run python scripts/test_opencode_adapter.py
+
 lint:
 	make -C backend lint
 	make -C frontend lint
@@ -59,45 +61,8 @@ checkall:
 	make -C backend checkall
 	make -C frontend checkall
 
-# Hook management targets
-hooks-install:
-	cd hooks && ./install.sh
-
-hooks-uninstall:
-	cd hooks && ./uninstall.sh
-
-hooks-reinstall: hooks-uninstall hooks-install
-	@echo "Hooks reinstalled"
-
-hooks-status:
-	@echo "=== Installed Claude Code Hooks ==="
-	@cat ~/.claude/settings.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin).get('hooks',{}); [print(f'  {k}: {len(v)} hook(s)') for k,v in d.items()]" 2>/dev/null || echo "  No hooks configured"
-	@echo ""
-	@echo "=== Hook Config ==="
-	@cat ~/.claude/claude-office-config.env 2>/dev/null || echo "  No config file found"
-
-hooks-logs:
-	@echo "=== Recent Hook Logs ==="
-	@tail -100 ~/.claude/claude-office-hooks.log 2>/dev/null || echo "  No log file found"
-
-hooks-logs-follow:
-	@tail -f ~/.claude/claude-office-hooks.log
-
-hooks-logs-clear:
-	@rm -f ~/.claude/claude-office-hooks.log
-	@echo "Hook logs cleared"
-
-hooks-debug-on:
-	@sed -i '' 's/CLAUDE_OFFICE_DEBUG=0/CLAUDE_OFFICE_DEBUG=1/' ~/.claude/claude-office-config.env 2>/dev/null || true
-	@grep -q "CLAUDE_OFFICE_DEBUG" ~/.claude/claude-office-config.env || echo "CLAUDE_OFFICE_DEBUG=1" >> ~/.claude/claude-office-config.env
-	@echo "Hook debug logging enabled"
-
-hooks-debug-off:
-	@sed -i '' 's/CLAUDE_OFFICE_DEBUG=1/CLAUDE_OFFICE_DEBUG=0/' ~/.claude/claude-office-config.env 2>/dev/null || true
-	@echo "Hook debug logging disabled"
-
 # tmux-based dev targets for better monitoring
-TMUX_SESSION=claude-office
+TMUX_SESSION=opencode-office
 
 dev-tmux:
 	@if tmux has-session -t $(TMUX_SESSION) 2>/dev/null; then \
@@ -133,7 +98,7 @@ clean-db:
 clean:
 	rm -rf frontend/.next
 
-clean-all: clean clean-db hooks-logs-clear
+clean-all: clean clean-db
 	@echo "All build artifacts and data cleaned"
 
 # Docker targets
@@ -142,7 +107,7 @@ docker-build:
 
 docker-up:
 	docker compose up -d
-	@echo "Claude Office running at http://localhost:8000"
+	@echo "OpenCode Office running at http://localhost:8000"
 
 docker-down:
 	docker compose down

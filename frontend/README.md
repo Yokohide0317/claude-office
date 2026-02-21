@@ -1,6 +1,6 @@
-# Claude Office Visualizer Frontend
+# OpenCode Office Visualizer Frontend
 
-Next.js application that renders a real-time pixel art office simulation using PixiJS, visualizing Claude Code operations as animated office activities.
+Next.js application that renders a real-time pixel art office simulation using PixiJS, visualizing OpenCode operations as animated office activities.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Next.js application that renders a real-time pixel art office simulation using P
 
 ## Overview
 
-The frontend provides an interactive visualization of Claude Code operations:
+The frontend provides an interactive visualization of OpenCode operations:
 
 - **Real-time Rendering**: PixiJS-powered 2D canvas at 1280x1024 native resolution
 - **Character Animation**: Boss and agent sprites with walk, idle, and typing animations

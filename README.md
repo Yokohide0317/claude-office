@@ -1,7 +1,7 @@
-# Claude Office Visualizer
+# OpenCode Office Visualizer
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![GitHub](https://img.shields.io/badge/github-paulrobello%2Fclaude--office-blue?logo=github)
+![OpenCode](https://img.shields.io/badge/OpenCode-Compatible-green?logo=open-source-initiative)
 ![Runs on Linux | MacOS | Windows](https://img.shields.io/badge/runs%20on-Linux%20%7C%20MacOS%20%7C%20Windows-blue)
 
 [![Watch the demo](https://img.shields.io/badge/YouTube-Demo-red?logo=youtube)](https://youtu.be/AM2UjKYB8Ew)
@@ -28,7 +28,9 @@
 
 ## About
 
-Claude Office Visualizer is a real-time pixel art office simulation that visualizes Claude Code operations. Watch as a "boss" character (main Claude agent) manages work, spawns "employee" agents (subagents), and orchestrates tasks in an animated office environment.
+OpenCode Office Visualizer is a real-time pixel art office simulation that visualizes OpenCode operations. Watch as a "boss" character (main OpenCode agent) manages work, spawns "employee" agents (subagents), and orchestrates tasks in an animated office environment.
+
+This is a fork of [Claude Office](https://github.com/paulrobello/claude-office) adapted to work with OpenCode's server architecture.
 
 The application was built with [Next.js](https://nextjs.org/), [PixiJS](https://pixijs.com/), [FastAPI](https://fastapi.tiangolo.com/), and [Zustand](https://github.com/pmndrs/zustand).
 
@@ -36,9 +38,12 @@ The application was built with [Next.js](https://nextjs.org/), [PixiJS](https://
 
 ## What's New
 
-### v0.7.0 (February 2026)
+### v0.8.0 (February 2026)
 
-- **Auto-Follow New Sessions**: Automatically detects and switches to new Claude Code sessions in the current project (enabled by default, configurable in Settings)
+- **OpenCode Support**: Now compatible with OpenCode server architecture
+- **SSE Event Streaming**: Real-time event streaming from OpenCode server
+- **Unified Event System**: Works with OpenCode's session, message, and tool events
+- **Backend-Only Changes**: Frontend UI and animations remain unchanged from original Claude Office
 
 ### v0.6.0 (January 2026)
 
@@ -60,8 +65,8 @@ The application was built with [Next.js](https://nextjs.org/), [PixiJS](https://
 ## Features
 
 ### Core Capabilities
-- **Real-time Visualization**: Watch Claude Code operations as they happen in an animated office
-- **Boss & Employee Agents**: Main Claude agent as boss, subagents as employees
+- **Real-time Visualization**: Watch OpenCode operations as they happen in an animated office
+- **Boss & Employee Agents**: Main OpenCode agent as boss, subagents as employees
 - **Visual State Indicators**: Working, delegating, waiting states clearly displayed
 - **Thought/Speech Bubbles**: See agent activities and communications
 
@@ -89,20 +94,20 @@ The application was built with [Next.js](https://nextjs.org/), [PixiJS](https://
 For the fastest setup, see the [Quick Start Guide](docs/QUICKSTART.md).
 
 ```bash
-git clone https://github.com/paulrobello/claude-office.git
-cd claude-office
+git clone https://github.com/your-org/opencode-office.git
+cd opencode-office
 make install-all
 make dev-tmux
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) and run any Claude Code command to see it visualized.
+Then open [http://localhost:3000](http://localhost:3000) and run `opencode serve` in another terminal, then start using OpenCode to see it visualized.
 
 ## Prerequisites
 
 - Python 3.14+
 - Node.js 20+ (Bun auto-detected if available)
 - uv (Python package manager)
-- Claude Code CLI installed and configured
+- OpenCode installed and running (or use `opencode serve`)
 
 ## Installation
 
@@ -126,24 +131,25 @@ cd backend && uv sync && cd ..
 # Install frontend dependencies
 cd frontend && bun install && cd ..
 
-# Install hooks into Claude Code
-make hooks-install
 ```
 
-### Enable AI Enhancements (Optional)
+### Configure OpenCode Connection
 
-For AI-powered features like agent name generation and task summaries, create a `.env` file in the `backend/` folder with your Claude Code OAuth token:
+Create a `.env` file in the `backend/` folder with your OpenCode server configuration:
 
 ```bash
-# Set up a long-lived authentication token (requires Claude subscription)
-# This will prompt you to authenticate and display your token
-claude setup-token
+# OpenCode Server Connection
+OPENCODE_SERVER_URL=http://localhost:4096
+# Optional: if your OpenCode server requires authentication
+OPENCODE_SERVER_USERNAME=opencode
+OPENCODE_SERVER_PASSWORD=your-password-here
 
-# Create the .env file with the token
-echo "CLAUDE_CODE_OAUTH_TOKEN=your-token-here" > backend/.env
+# Optional: Enable AI-powered summaries
+ENABLE_AI_SUMMARIES=false
+ANTHROPIC_API_KEY=your-anthropic-key-here
 ```
 
-Without this token, the visualizer works fully but displays raw agent IDs instead of friendly generated names, and tool names instead of summarized tasks. The frontend displays AI status in the top right corner so you can verify if it's properly configured.
+The visualizer works fully without AI summaries enabled, displaying session titles and task descriptions directly from OpenCode.
 
 ## Development
 
@@ -175,16 +181,15 @@ make dev
 | `make build-static` | Build frontend and copy to backend for standalone deployment |
 | `make clean-all` | Remove all build artifacts and data |
 
-### Hook Management
+### OpenCode Configuration
 
-| Command | Description |
-|---------|-------------|
-| `make hooks-install` | Install hooks into Claude Code |
-| `make hooks-uninstall` | Remove hooks from Claude Code |
-| `make hooks-status` | Show installed hooks and config |
-| `make hooks-logs` | View recent hook logs |
-| `make hooks-debug-on` | Enable debug logging |
-| `make hooks-debug-off` | Disable debug logging |
+| Environment Variable | Description | Default |
+|----------------------|-------------|---------|
+| `OPENCODE_SERVER_URL` | OpenCode server URL | `http://localhost:4096` |
+| `OPENCODE_SERVER_USERNAME` | Server username (if auth enabled) | `opencode` |
+| `OPENCODE_SERVER_PASSWORD` | Server password (if auth enabled) | `""` |
+| `ENABLE_AI_SUMMARIES` | Enable AI-powered summaries | `false` |
+| `ANTHROPIC_API_KEY` | Anthropic API key for summaries | `""` |
 
 ### Docker Deployment
 
@@ -204,12 +209,13 @@ Once running, open [http://localhost:3000](http://localhost:3000) in your browse
 ## Project Structure
 
 ```
-claude-office/
+opencode-office/
 ├── backend/               # FastAPI backend
 │   ├── app/
 │   │   ├── api/          # REST and WebSocket endpoints
 │   │   ├── core/         # State machine, event processor
-│   │   └── models/       # Pydantic models
+│   │   ├── models/       # Pydantic models
+│   │   └── services/     # OpenCode adapter, summary service
 │   └── pyproject.toml
 ├── frontend/             # Next.js + PixiJS frontend
 │   ├── src/
@@ -218,10 +224,6 @@ claude-office/
 │   │   ├── stores/       # Zustand state stores
 │   │   └── systems/      # Animation, pathfinding
 │   └── package.json
-├── hooks/                # Claude Code integration
-│   ├── src/              # Hook implementation
-│   ├── install.sh        # Hook installer
-│   └── uninstall.sh      # Hook uninstaller
 ├── scripts/              # Utility scripts
 ├── docs/                 # Documentation
 └── Makefile              # Project orchestration
@@ -229,11 +231,12 @@ claude-office/
 
 ## Troubleshooting
 
-### Hooks Not Firing
+### OpenCode Connection Issues
 
-1. Check hooks are installed: `make hooks-status`
-2. Enable debug logging: `make hooks-debug-on`
-3. Watch logs: `make hooks-logs-follow`
+1. Verify OpenCode server is running: `opencode serve` or check your existing server
+2. Check `OPENCODE_SERVER_URL` in `backend/.env`
+3. Verify server health: `curl http://localhost:4096/global/health`
+4. Check backend logs for connection errors
 
 ### Frontend Not Updating
 
@@ -273,6 +276,6 @@ Contributions are welcome! Please ensure that all pull requests:
 - [AI Summary](docs/AI_SUMMARY.md) - AI-powered summary service documentation
 - [Backend README](backend/README.md) - Backend-specific setup
 - [Frontend README](frontend/README.md) - Frontend-specific setup
-- [Hooks README](hooks/README.md) - Hook installation details
 - [Scripts README](scripts/README.md) - Testing and simulation scripts
+- [OpenCode Docs](https://opencode.ai/docs/) - Official OpenCode documentation
 - [CLAUDE.md](CLAUDE.md) - AI assistant instructions for this project

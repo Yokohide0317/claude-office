@@ -1,10 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI assistants when working with code in this repository.
 
 ## Overview
 
-Claude Office Visualizer transforms Claude Code operations into a real-time pixel art office simulation. A "boss" character (main Claude agent) manages work, spawns "employee" agents (subagents), and orchestrates tasks visually.
+OpenCode Office Visualizer transforms OpenCode operations into a real-time pixel art office simulation. A "boss" character (main OpenCode agent) manages work, spawns "employee" agents (subagents), and orchestrates tasks visually.
+
+This is a fork of [Claude Office](https://github.com/paulrobello/claude-office) adapted to work with OpenCode's server architecture.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture and component details.
 
@@ -23,19 +25,18 @@ make dev           # Start dev server
 make checkall      # Check single component (faster)
 uv run pytest tests/test_file.py::test_name  # Single backend test
 
-# Hooks (cd hooks/)
-./install.sh       # Install hooks
-./uninstall.sh     # Remove hooks
+# Test OpenCode adapter
+uv run python scripts/test_opencode_adapter.py
 ```
 
 ## Development Workflow
 
 **Preferred:** Use `make dev-tmux` - creates separate windows for backend/frontend.
-- Read logs: `tmux capture-pane -t claude-office:backend -p`
+- Read logs: `tmux capture-pane -t opencode-office:backend -p`
 - Switch windows: `Ctrl-b n` / `Ctrl-b p`
 - Hot reload enabled on both servers
 
-**Debugging:** Hook logs at `~/.claude/claude-office-hooks.log` (enable with `CLAUDE_OFFICE_DEBUG=1`)
+**Debugging:** Backend logs show OpenCode adapter events and transformations.
 
 ## Project Skills
 
@@ -60,9 +61,6 @@ See `.claude/skills/*/SKILL.md` for details.
 
 | Location | File |
 |----------|------|
-| Root package | `pyproject.toml` |
 | Backend | `backend/pyproject.toml` |
-| Hooks | `hooks/pyproject.toml` |
-| Hooks CLI | `hooks/src/claude_office_hooks/main.py` (`__version__`) |
 | Frontend package | `frontend/package.json` |
-| Frontend display | `frontend/src/app/page.tsx` (header badge)
+| Frontend display | `frontend/src/app/page.tsx` (header badge) |

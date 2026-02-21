@@ -17,6 +17,7 @@ from app.core.event_processor import event_processor
 from app.core.summary_service import get_summary_service
 from app.db.database import Base, get_engine
 from app.services.git_service import git_service
+from app.services.opencode_adapter import OpenCodeAdapter
 
 STATIC_DIR = Path(__file__).parent.parent / "static"
 
@@ -38,8 +39,21 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 
     git_service.start()
 
+    # Start OpenCode adapter if enabled
+    opencode_adapter = None
+    if settings.OPENCODE_ADAPTER_ENABLED:
+        opencode_adapter = OpenCodeAdapter(
+            server_url=settings.OPENCODE_SERVER_URL,
+            username=settings.OPENCODE_SERVER_USERNAME,
+            password=settings.OPENCODE_SERVER_PASSWORD,
+            enabled=settings.OPENCODE_ADAPTER_ENABLED
+        )
+        await opencode_adapter.start()
+
     yield
 
+    if opencode_adapter:
+        await opencode_adapter.stop()
     await git_service.stop()
     await get_engine().dispose()
 

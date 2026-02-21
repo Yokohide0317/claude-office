@@ -1,7 +1,7 @@
 [project]
-name = "claude-office-visualizer"
-version = "0.7.0"
-description = "Real-time pixel art visualization of Claude Code operations"
+name = "opencode-office-visualizer"
+version = "0.8.0"
+description = "Real-time pixel art visualization of OpenCode operations"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
